@@ -212,7 +212,7 @@ public struct GameSpecification: Equatable {
             hostIp: hostConfig.address.location,
             hostPort: hostConfig.address.port,
             autohost: autohost,
-            demoFile: demoFile?.lastPathComponent,
+            demoFile: demoFile?.path,
             players: scriptPlayers,
             ais: scriptAIs,
             teams: scriptTeams,
