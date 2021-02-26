@@ -10,7 +10,13 @@ import Foundation
 import CountryCode
 import ServerAddress
 
-public struct ClientSpecification: Equatable {
+/// Describes a data object with the necessary information to start Spring.
+public protocol LaunchScriptConvertible {
+    /// Generates a string suitable for launching the engine to a specification.
+    func launchScript(shouldRecordDemo: Bool) -> String
+}
+
+public struct ClientSpecification: LaunchScriptConvertible, Equatable {
 
     public init(ip: String, port: Int, username: String, scriptPassword: String) {
         self.ip = ip
@@ -30,7 +36,7 @@ public struct ClientSpecification: Equatable {
 }
 
 /// A set of information fully describing how a game should be created by the SpringRTS engine.
-public struct GameSpecification: Equatable {
+public struct GameSpecification: LaunchScriptConvertible, Equatable {
 
     public init(allyTeams: [AllyTeam], spectators: [Player], demoFile: URL?, hostConfig: HostConfig, startConfig: StartConfig, mapName: String, mapHash: UInt32?, gameType: String, modHash: UInt32?, gameStartDelay: Int?, mapOptions: [String : String], modOptions: [String : String], restrictions: [String : Int]) {
         self.allyTeams = allyTeams
