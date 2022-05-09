@@ -198,14 +198,16 @@ enum LaunchScript {
             if let modHash = modHash { gameSection["modhash"] = String(modHash) }
             gameSection["gametype"] = gameType
             if let gameStartDelay = gameStartDelay { gameSection["gamestartdelay"] = String(gameStartDelay) }
-            gameSection["startpostype"] = String(startPositionType.rawValue)
+
+            if let startpostype = startPositionType?.rawValue { gameSection["startpostype"] = String(startpostype) }
 
             gameSection["dorecorddemo"] = String(doRecordDemo ? 1 : 0)
 
             gameSection["hosttype"] = hostType
-            gameSection["hostip"] = hostIp
-            gameSection["hostport"] = String(hostPort)
             gameSection["ishost"] = String(isHost ? 1 : 0)
+
+            if let hostIp = hostIp { gameSection["hostip"] = hostIp }
+            if let hostPort = hostPort { gameSection["hostport"] = String(hostPort) }
 
             if let autohost = autohost {
                 if let id = autohost.id { gameSection["autohostaccountid"] = String(id) }
@@ -255,13 +257,13 @@ enum LaunchScript {
         let modHash: UInt32?
         let gameType: String // either primary mod NAME, rapid tag name or archive name
         let gameStartDelay: Int? // optional, in seconds, (unsigned int), default: 4
-        let startPositionType: StartPositionType // 0 fixed, 1 random, 2 choose in game, 3 choose before game (see StartPosX)
+        let startPositionType: StartPositionType? // 0 fixed, 1 random, 2 choose in game, 3 choose before game (see StartPosX)
 
         let doRecordDemo: Bool // when finally input, 0 for false and 1 for true
 
         let hostType: String
-        let hostIp: String //
-        let hostPort: Int //
+        let hostIp: String? //
+        let hostPort: Int? //
         let isHost: Bool = true // 1 for true, 0 for false
 
 
@@ -354,7 +356,7 @@ enum LaunchScript {
         // [TEAM0] {
         let leader: Int // Player number of the leader
         let allyTeamNumber: Int
-        let rgbColor: (red: Float, green: Float, blue: Float) // r g b in range 0 to 1
+        let rgbColor: (red: Float, green: Float, blue: Float)? // r g b in range 0 to 1
         let side: String? // Arm/Core; other sides possible with mods other than BA
         let handicap: Int = 0 // Deprecated, see advantage; but is -100 to 100 - % resource income bonus
 
@@ -370,10 +372,9 @@ enum LaunchScript {
             var temp: [String : String] = [
                 "teamleader" : String(leader),
                 "allyteam" : String(allyTeamNumber),
-                "rgbcolor" : "\(rgbColor.red) \(rgbColor.green) \(rgbColor.blue)",
                 "handicap" : String(handicap),
-
             ]
+            if let rgbColor = rgbColor { temp["rgbcolor"] = "\(rgbColor.red) \(rgbColor.green) \(rgbColor.blue)" }
             if let side = side { temp["side"] = side }
             if let advantage = advantage { temp["advantage"] = String(advantage) }
             if let incomeMultiplier = incomeMultiplier { temp["incomemultiplier"] = String(incomeMultiplier) }

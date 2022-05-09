@@ -36,6 +36,11 @@ public enum StartConfig: Equatable {
             case .random: return true
             default: return false
             }
+        case .unspecified:
+            switch rhs {
+            case .unspecified: return true
+            default: return false
+            }
         }
     }
 
@@ -48,6 +53,8 @@ public enum StartConfig: Equatable {
     case chooseInGame(startBoxes: [Int : StartBox])
     /// Indicates that the players should be randomly distributed according to the map's set locations.
     case random
+
+    case unspecified
 
     public struct Coordinate: Equatable {
         public let x: Int

@@ -90,7 +90,7 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
     public func launchScript(shouldRecordDemo: Bool) -> String {
         let startPositions: [Int : StartConfig.Coordinate]?
         let startBoxes: [Int: StartBox]?
-        let startPositionType: LaunchScript.StartPositionType
+        let startPositionType: LaunchScript.StartPositionType?
 
         switch startConfig {
         case .chooseBeforeGame(let _startPositions):
@@ -109,6 +109,10 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
             startBoxes = _startBoxes
             startPositions = nil
             startPositionType = .chooseInGame
+        case .unspecified:
+            startBoxes = nil
+            startPositions = nil
+            startPositionType = nil
         }
 
         let teams = allyTeams.reduce([], { $0 + $1.teams })
@@ -152,13 +156,16 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
         })
         let indexedTeams = allyTeams.reduce([], { (partialResult, allyTeam) in partialResult + allyTeam.teams.map({(allyTeamID: allyTeam.scriptID, team: $0)})})
         let scriptTeams = indexedTeams.sorted(by: { $0.team.scriptID < $1.team.scriptID }).map({ (allyTeamID: Int, team: Team) -> LaunchScript.Team in
-            let red =   Float((team.color & 0x00FF0000) >> 16) / 255
-            let green = Float((team.color & 0x0000FF00) >>  8) / 255
-            let blue =  Float((team.color & 0x000000FF)      ) / 255
+            let color = team.color.map { color -> (Float, Float, Float) in
+                let red =   Float((color & 0x00FF0000) >> 16) / 255
+                let green = Float((color & 0x0000FF00) >>  8) / 255
+                let blue =  Float((color & 0x000000FF)      ) / 255
+                return (red, green, blue)
+            }
             return LaunchScript.Team(
                 leader: team.leader,
                 allyTeamNumber: allyTeamID,
-                rgbColor: (red, green, blue),
+                rgbColor: color,
                 side: team.side,
                 advantage: team.advantage,
                 incomeMultiplier: team.incomeMultiplier,
@@ -215,8 +222,8 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
             startPositionType: startPositionType,
             doRecordDemo: shouldRecordDemo,
             hostType: hostType,
-            hostIp: hostConfig.address.location,
-            hostPort: hostConfig.address.port,
+            hostIp: hostConfig.address?.location,
+            hostPort: hostConfig.address?.port,
             autohost: autohost,
             demoFile: demoFile?.path,
             players: scriptPlayers,
@@ -249,19 +256,20 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
         self.mapOptions = (try? sections.sectionValues(.mapOptions)) ?? [:]
 
         var formattedRestrictions: [String : Int] = [:]
-        let expectedRestrictionsCount = try sections.keyedInteger(for: "numrestrictions", from: .game)
-        try (0..<expectedRestrictionsCount).forEach({
-            let limit = try sections.keyedInteger(for: "limit\($0)", from: .restrictions)
-            let unit = try sections.keyedValue(for: "unit\($0)", from: .restrictions)
-            formattedRestrictions[unit] = limit
-        })
+        if let expectedRestrictionsCount = try? sections.keyedInteger(for: "numrestrictions", from: .game) {
+            try (0..<expectedRestrictionsCount).forEach({
+                let limit = try sections.keyedInteger(for: "limit\($0)", from: .restrictions)
+                let unit = try sections.keyedValue(for: "unit\($0)", from: .restrictions)
+                formattedRestrictions[unit] = limit
+            })
+        }
         restrictions = formattedRestrictions
     }
 
     private static func hostSettings(describedBy sections: ScriptSections, players: [Player]) throws -> HostConfig {
-        let serverAddress = ServerAddress(
-            location: try sections.game(key: "hostip"),
-            port: try sections.keyedInteger(for: "hostport", from: .game)
+        let serverAddress = try? ServerAddress(
+            location: sections.game(key: "hostip"),
+            port: sections.keyedInteger(for: "hostport", from: .game)
         )
 
         if let hostName = try? sections.game(key: "autohostname"),
@@ -296,7 +304,9 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
     }
 
     private static func startSettings(describedBy sections: ScriptSections, allyTeamCount: Int, teamCount: Int) throws -> StartConfig {
-        let startpostype = try sections.keyedInteger(for: "startpostype", from: .game)
+        guard let startpostype = try? sections.keyedInteger(for: "startpostype", from: .game) else {
+            return .unspecified
+        }
 
         switch startpostype {
         case 0: // Fixed
@@ -342,19 +352,21 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
 
         var teamsByAllyTeam: [Int : [Team]] = [:]
         try (0..<teamCount).forEach({
-            let colors = try sections.keyedValue(for: "rgbcolor", from: .team(number: $0))
+            let colors = try? sections.keyedValue(for: "rgbcolor", from: .team(number: $0))
                 .split(separator: " ")
                 .map({ UInt32((Double(String($0)) ?? 0.0) * 255) })
             let allyTeam = try sections.keyedInteger(for: "allyteam", from: .team(number: $0))
+
+
 
             let newTeam = Team(
                 scriptID: $0,
                 leader: try sections.keyedInteger(for: "teamleader", from: .team(number: $0)),
                 players: players[$0] ?? [],
                 ais: ais[$0] ?? [],
-                color: colors[0] << 16 | colors[1] << 8 | colors[2],
+                color: colors.map({ colors in colors[0] << 16 | colors[1] << 8 | colors[2] }),
                 side: try? sections.keyedValue(for: "side", from: .team(number: $0)),
-                handicap: try sections.keyedInteger(for: "handicap", from: .team(number: $0)),
+                handicap: try? sections.keyedInteger(for: "handicap", from: .team(number: $0)),
                 advantage: try? sections.keyedFloat(for: "advantage", from: .team(number: $0)),
                 incomeMultiplier: try? sections.keyedFloat(for: "incomemultiplier", from: .team(number: $0)),
                 luaAI: try? sections.keyedValue(for: "luaai", from: .team(number: $0))

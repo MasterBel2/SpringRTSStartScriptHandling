@@ -23,12 +23,12 @@ public struct Team: Equatable {
     public let ais: [AI]
 
     /// The color assigned to the team.
-    public let color: UInt32
+    public let color: UInt32?
     /// The faction assigned to the team.
     public let side: String?
 
     /// ??? Not sure what a handicap is.
-    public let handicap: Int
+    public let handicap: Int?
 
     public let advantage: Float?
 
@@ -37,7 +37,7 @@ public struct Team: Equatable {
     /// The LuaAI controlling the team.
     public let luaAI: String?
 
-    public init(scriptID: Int, leader: Int, players: [Player], ais: [AI], color: UInt32, side: String?, handicap: Int, advantage: Float?, incomeMultiplier: Float?, luaAI: String?) {
+    public init(scriptID: Int, leader: Int, players: [Player], ais: [AI], color: UInt32?, side: String?, handicap: Int?, advantage: Float?, incomeMultiplier: Float?, luaAI: String?) {
         self.scriptID = scriptID
         self.leader = leader
         self.players = players

@@ -19,13 +19,14 @@ public struct HostConfig: Equatable {
     /// Information about the host program.
     public let type: HostType
     ///
-    public let address: ServerAddress
+    public let address: ServerAddress?
+    #warning("FIXME - this probably shouldn't be optional. Prefer to have some kind of an enum handling?")
     /// The lobby rank of the host account.
     public let rank: Int?
     /// The country code describing the location from which the host connects.
     public let countryCode: CountryCode?
 
-    public init(userID: Int?, username: String, type: HostType, address: ServerAddress, rank: Int?, countryCode: CountryCode?) {
+    public init(userID: Int?, username: String, type: HostType, address: ServerAddress?, rank: Int?, countryCode: CountryCode?) {
         self.userID = userID
         self.username = username
         self.type = type
