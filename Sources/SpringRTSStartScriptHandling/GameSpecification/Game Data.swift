@@ -38,7 +38,7 @@ public struct ClientSpecification: LaunchScriptConvertible, Equatable {
 /// A set of information fully describing how a game should be created by the SpringRTS engine.
 public struct GameSpecification: LaunchScriptConvertible, Equatable {
 
-    public init(allyTeams: [AllyTeam], spectators: [Player], demoFile: URL?, hostConfig: HostConfig, startConfig: StartConfig, mapName: String, mapHash: UInt32?, gameType: String, modHash: UInt32?, gameStartDelay: Int?, mapOptions: [String : String], modOptions: [String : String], restrictions: [String : Int]) {
+    public init(allyTeams: [AllyTeam], spectators: [Player], demoFile: URL?, hostConfig: HostConfig, startConfig: StartConfig, mapName: String, mapHash: Int32?, gameType: String, modHash: Int32?, gameStartDelay: Int?, mapOptions: [String : String], modOptions: [String : String], restrictions: [String : Int]) {
         self.allyTeams = allyTeams
         self.spectators = spectators
         self.demoFile = demoFile
@@ -70,14 +70,14 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
     /// The name of the map.
     public let mapName: String
     /// The unisync hash of the map.
-    public let mapHash: UInt32?
+    public let mapHash: Int32?
 
     // SpringLobby doesn't use this value, not sure what its role is.
     //    let gameName: String
     /// The full name string of the game.
     public let gameType: String
     /// ??? The unitsync hash of the game. ???
-    public let modHash: UInt32?
+    public let modHash: Int32?
 
     /// An optional values specifying the number of seconds by which to delay the start of the game after all players are ingame/ready.
     public let gameStartDelay: Int?
@@ -243,9 +243,9 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
         hostConfig = try GameSpecification.hostSettings(describedBy: sections, players: allyTeams.reduce([], {$0 + $1.teams}).reduce([], {$0 + $1.players}) + spectators)
         startConfig = try GameSpecification.startSettings(describedBy: sections, allyTeamCount: allyTeams.count, teamCount: allyTeams.reduce(0, { $0 + $1.teams.count }))
         mapName = try sections.game(key: "mapname")
-        mapHash = try? UInt32(sections.keyedInteger(for: "maphash", from: .game))
+        mapHash = try? Int32(sections.keyedInteger(for: "maphash", from: .game))
         gameType = try sections.game(key: "gametype")
-        modHash = try? UInt32(sections.keyedInteger(for: "modhash", from: .game))
+        modHash = try? Int32(sections.keyedInteger(for: "modhash", from: .game))
 
         gameStartDelay = try? sections.keyedInteger(for: "gamestartdelay", from: .game)
 
@@ -354,7 +354,7 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
         try (0..<teamCount).forEach({
             let colors = try? sections.keyedValue(for: "rgbcolor", from: .team(number: $0))
                 .split(separator: " ")
-                .map({ UInt32((Double(String($0)) ?? 0.0) * 255) })
+                .map({ Int32((Double(String($0)) ?? 0.0) * 255) })
             let allyTeam = try sections.keyedInteger(for: "allyteam", from: .team(number: $0))
 
 

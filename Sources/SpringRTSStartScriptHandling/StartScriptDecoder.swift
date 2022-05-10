@@ -251,10 +251,10 @@ enum LaunchScript {
         // [GAME] {
         let myPlayerName: String
         let mapName: String // Name of the file
-        let mapHash: UInt32?
+        let mapHash: Int32?
         // SpringLobby doesn't use this value
         //        let gameName: String
-        let modHash: UInt32?
+        let modHash: Int32?
         let gameType: String // either primary mod NAME, rapid tag name or archive name
         let gameStartDelay: Int? // optional, in seconds, (unsigned int), default: 4
         let startPositionType: StartPositionType? // 0 fixed, 1 random, 2 choose in game, 3 choose before game (see StartPosX)
