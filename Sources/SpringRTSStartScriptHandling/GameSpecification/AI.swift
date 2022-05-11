@@ -22,4 +22,13 @@ public struct AI: Equatable {
 
     /// Whether or not the AI come from a demo.
     public let isFromDemo: Bool
+
+    public init(scriptID: Int, name: String, hostID: Int, shortName: String, version: String, isFromDemo: Bool) {
+        self.scriptID = scriptID
+        self.name = name
+        self.hostID = hostID
+        self.shortName = shortName
+        self.version = version
+        self.isFromDemo = isFromDemo
+    }
 }
