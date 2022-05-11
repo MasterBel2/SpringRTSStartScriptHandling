@@ -29,7 +29,7 @@ public struct Player: Equatable {
 
     public let isFromDemo: Bool
 
-    public init(scriptID: Int, userID: Int?, username: String, scriptPassword: String, skill: String?, rank: Int?, countryCode: CountryCode?, isFromDemo: Bool) {
+    public init(scriptID: Int, userID: Int?, username: String, scriptPassword: String?, skill: String?, rank: Int?, countryCode: CountryCode?, isFromDemo: Bool) {
         self.scriptID = scriptID
         self.userID = userID
         self.username = username
