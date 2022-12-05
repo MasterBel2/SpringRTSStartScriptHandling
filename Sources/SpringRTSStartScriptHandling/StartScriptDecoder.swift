@@ -225,10 +225,10 @@ enum LaunchScript {
             gameSection["numrestrictions"] = String(restrictions.count)
 
 
-            let playerSections = players.enumerated().map({ WritableScriptSection(identifier: .player(number: $0.offset), nestedSections: [], arguments: $0.element.description) })
-            let teamSections = teams.enumerated().map({ WritableScriptSection(identifier: .team(number: $0.offset), nestedSections: [], arguments: $0.element.description) })
-            let allyTeamSections = allyTeams.enumerated().map({ WritableScriptSection(identifier: .allyteam(number: $0.offset), nestedSections: [], arguments: $0.element.description) })
-            let aiSections = ais.enumerated().map({ WritableScriptSection(identifier: .ai(number: $0.offset), nestedSections: [], arguments: $0.element.description) })
+            let playerSections = players.map({ WritableScriptSection(identifier: .player(number: $0.scriptID), nestedSections: [], arguments: $0.value.description) })
+            let teamSections = teams.map({ WritableScriptSection(identifier: .team(number: $0.scriptID), nestedSections: [], arguments: $0.value.description) })
+            let allyTeamSections = allyTeams.map({ WritableScriptSection(identifier: .allyteam(number: $0.scriptID), nestedSections: [], arguments: $0.value.description) })
+            let aiSections = ais.map({ WritableScriptSection(identifier: .ai(number: $0.scriptID), nestedSections: [], arguments: $0.value.description) })
 
             var formattedRestrictions: [String : String] = [:]
             restrictions.enumerated().forEach({
@@ -280,15 +280,15 @@ enum LaunchScript {
         let demoFile: String?
 
         // [PLAYER0] {
-        let players: [Player]
+        let players: [(scriptID: Int, value: Player)]
         // }
 
-        let ais: [AI]
+        let ais: [(scriptID: Int, value: AI)]
         // [AI0] {…} [AIX] {
 
-        let teams: [Team]
+        let teams: [(scriptID: Int, value: Team)]
 
-        let allyTeams: [AllyTeam]
+        let allyTeams: [(scriptID: Int, value: AllyTeam)]
 
         // Unit : Max #
         let restrictions: [String : Int]

@@ -118,8 +118,8 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
         let teams = allyTeams.reduce([], { $0 + $1.teams })
         let indexedPlayers = teams.reduce([], { (partialResult, team) in partialResult + team.players.map({(teamID: team.scriptID, player: $0)})})
         let sortedIndexedPlayers = indexedPlayers.sorted(by: { $0.1.scriptID < $1.1.scriptID })
-        let scriptPlayers = sortedIndexedPlayers.map({ (teamID: Int, player: Player) -> LaunchScript.Player in
-            return LaunchScript.Player(
+        let scriptPlayers = sortedIndexedPlayers.map({ (teamID: Int, player: Player) -> (Int, LaunchScript.Player) in
+            return (player.scriptID, LaunchScript.Player(
                 username: player.username,
                 accountID: player.userID,
                 password: player.scriptPassword,
@@ -129,9 +129,9 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
                 skill: player.skill,
                 team: teamID,
                 isSpectator: false
-            )
-        }) + spectators.sorted(by: { $0.scriptID < $1.scriptID }).map({ (spectator: Player) -> LaunchScript.Player in
-            return LaunchScript.Player(
+            ))
+        }) + spectators.sorted(by: { $0.scriptID < $1.scriptID }).map({ (spectator: Player) -> (Int, LaunchScript.Player) in
+            return (spectator.scriptID, LaunchScript.Player(
                 username: spectator.username,
                 accountID: spectator.userID,
                 password: spectator.scriptPassword,
@@ -141,28 +141,28 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
                 skill: spectator.skill,
                 team: nil,
                 isSpectator: true
-            )
+            ))
         })
         let indexedAIs = teams.reduce([], { (partialResult, team) in partialResult + team.ais.map({(teamID: team.scriptID, ai: $0)})})
         let scriptAIs = indexedAIs.sorted(by: {$0.ai.scriptID < $1.ai.scriptID }).map({ (teamID, ai) in
-            return LaunchScript.AI(
+            return (ai.scriptID, LaunchScript.AI(
                 name: ai.name,
                 host: ai.hostID,
                 isFromDemo: ai.isFromDemo,
                 team: teamID,
                 shortName: ai.shortName,
                 version: ai.version
-            )
+            ))
         })
         let indexedTeams = allyTeams.reduce([], { (partialResult, allyTeam) in partialResult + allyTeam.teams.map({(allyTeamID: allyTeam.scriptID, team: $0)})})
-        let scriptTeams = indexedTeams.sorted(by: { $0.team.scriptID < $1.team.scriptID }).map({ (allyTeamID: Int, team: Team) -> LaunchScript.Team in
+        let scriptTeams = indexedTeams.sorted(by: { $0.team.scriptID < $1.team.scriptID }).map({ (allyTeamID: Int, team: Team) -> (Int, LaunchScript.Team) in
             let color = team.color.map { color -> (Float, Float, Float) in
                 let red =   Float((color & 0x00FF0000) >> 16) / 255
                 let green = Float((color & 0x0000FF00) >>  8) / 255
                 let blue =  Float((color & 0x000000FF)      ) / 255
                 return (red, green, blue)
             }
-            return LaunchScript.Team(
+            return (team.scriptID, LaunchScript.Team(
                 leader: team.leader,
                 allyTeamNumber: allyTeamID,
                 rgbColor: color,
@@ -172,9 +172,9 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
                 startPosX: startPositions?[team.scriptID]?.x,
                 startPosZ: startPositions?[team.scriptID]?.z,
                 luaAI: team.luaAI
-            )
+            ))
         })
-        let scriptAllyTeams = allyTeams.sorted(by: { $0.scriptID < $1.scriptID }).map({ (allyTeam: AllyTeam) -> LaunchScript.AllyTeam in
+        let scriptAllyTeams = allyTeams.sorted(by: { $0.scriptID < $1.scriptID }).map({ (allyTeam: AllyTeam) -> (Int, LaunchScript.AllyTeam) in
             let left: String?
             let right: String?
             let bottom: String?
@@ -187,12 +187,12 @@ public struct GameSpecification: LaunchScriptConvertible, Equatable {
             } else {
                 left = nil; right = nil; bottom = nil; top = nil
             }
-            return LaunchScript.AllyTeam(
+            return (allyTeam.scriptID, LaunchScript.AllyTeam(
                 startRectTop: top,
                 startRectLeft: left,
                 startRectBottom: bottom,
                 startRectRight: right
-            )
+            ))
         })
 
         let hostType: String
