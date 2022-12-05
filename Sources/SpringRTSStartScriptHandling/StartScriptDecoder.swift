@@ -178,7 +178,7 @@ enum LaunchScript {
                 "HostPort" : String(port),
                 "MyPlayerName" : username,
                 "MyPasswd" : password,
-                "DoRecordDemo" : doRecordDemo ? "1" : "0"
+                "RecordDemo" : doRecordDemo ? "1" : "0"
             ]
 
             return WritableScriptSection(identifier: .game, nestedSections: [], arguments: gameSectionArguments).description
@@ -201,7 +201,7 @@ enum LaunchScript {
 
             if let startpostype = startPositionType?.rawValue { gameSection["startpostype"] = String(startpostype) }
 
-            gameSection["dorecorddemo"] = String(doRecordDemo ? 1 : 0)
+            gameSection["recorddemo"] = String(doRecordDemo ? 1 : 0)
 
             gameSection["hosttype"] = hostType
             gameSection["ishost"] = String(isHost ? 1 : 0)
